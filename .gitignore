@@ -11,3 +11,6 @@ node_modules/
 .env*
 .vercel
 web/public/data/*.json
+
+# TypeScript build cache
+*.tsbuildinfo
