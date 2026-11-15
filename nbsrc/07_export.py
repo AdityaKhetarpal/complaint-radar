@@ -88,6 +88,7 @@ write("model", {
     "phrases": records(run_sql("SELECT * FROM top_phrases ORDER BY product")),
     "mistakes": records(run_sql("SELECT * FROM mistakes")),
     "llm": records(run_sql("SELECT * FROM llm_comparison")),
+    "llm_rows": int(run_sql("SELECT COUNT(*) AS n FROM llm_predictions")["n"][0]),
 })
 
 # %% [markdown]

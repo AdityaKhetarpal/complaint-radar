@@ -37,6 +37,6 @@ jobs:
         run: |
           git config user.name "Aditya Khetarpal"
           git config user.email "80028073+AdityaKhetarpal@users.noreply.github.com"
-          git add notebooks/*.ipynb web/public/data/*.json
+          git add notebooks/*.ipynb && git add -f web/public/data/*.json
           git commit -m "Pipeline results: notebooks 02-07 run on the CFPB data" || exit 0
           for i in 1 2 3 4; do git pull --rebase -q && git push -q && break; sleep 8; done
