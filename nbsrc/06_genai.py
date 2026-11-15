@@ -29,12 +29,12 @@ print(f"{len(topics)} topics, {len(data)} example complaints")
 
 # %% [markdown]
 # ### The prompt
-# We give the model the topic's top words and its 5 most typical complaints (cut to 700 characters each), and ask
+# We give the model the topic's top words and its 4 most typical complaints (cut to 450 characters each), and ask
 # for a short name and a two-sentence summary, as JSON so the answer is easy to read back.
 
 # %%
 def topic_prompt(words: str, complaints: list) -> str:
-    shown = "\n\n".join(f"Complaint {i + 1}: {c[:700]}" for i, c in enumerate(complaints))
+    shown = "\n\n".join(f"Complaint {i + 1}: {c[:450]}" for i, c in enumerate(complaints[:4]))
     return (
         "You are an analyst at a bank reviewing customer complaints sent to the US CFPB.\n"
         f"These complaints share one theme. Key words: {words}.\n\n{shown}\n\n"
@@ -68,7 +68,7 @@ for _, t in topics.iterrows():
     answer = read_json(llm(topic_prompt(t["top_words"], examples), max_tokens=160))
     rows.append({"topic": t["topic"], "name": answer.get("name") or f"Topic {t['topic']}",
                  "summary": answer.get("summary") or "", "seconds": round(time.time() - start, 1)})
-    print(t["topic"], "·", rows[-1]["name"])
+    print(t["topic"], "·", rows[-1]["name"], f"({rows[-1]['seconds']}s)", flush=True)
 import pandas as pd
 data = pd.DataFrame(rows)
 data
@@ -79,14 +79,14 @@ save_table(data.drop(columns="seconds"), "topic_names")
 # %% [markdown]
 # ## Part 2 · Can an LLM route complaints without training?
 # ### Take the same test complaints the classic model saw
-# We use 200 complaints from notebook 04's test set (the LLM is slow on a CPU, so not all of them).
+# We use 120 complaints from notebook 04's test set (the LLM is slow on a CPU, so not all of them).
 
 # %%
 data = run_sql("""
     SELECT p.complaint_id, p.product, p.predicted AS tfidf_predicted, c.narrative
     FROM predictions p JOIN complaints c ON c.complaint_id = p.complaint_id
 """)
-data = data.sample(min(200, len(data)), random_state=11).reset_index(drop=True)
+data = data.sample(min(120, len(data)), random_state=11).reset_index(drop=True)
 PRODUCTS = sorted(run_sql("SELECT DISTINCT product FROM complaints")["product"])
 PRODUCTS
 
@@ -98,7 +98,7 @@ PRODUCTS
 def route_prompt(narrative: str) -> str:
     return ("Which product is this US consumer complaint about? Choose exactly one from this list:\n"
             + "\n".join(f"- {p}" for p in PRODUCTS)
-            + f"\n\nComplaint: {narrative[:1500]}\n\nAnswer with the product name only.")
+            + f"\n\nComplaint: {narrative[:700]}\n\nAnswer with the product name only.")
 
 def to_product(answer: str) -> str:
     """Match the model's answer to a product name; 'unknown' if it named none."""
@@ -115,13 +115,15 @@ for text in data["narrative"]:
     start = time.time()
     answers.append(to_product(llm(route_prompt(text), max_tokens=12)))
     seconds.append(time.time() - start)
+    if len(seconds) % 20 == 0:
+        print(f"{len(seconds)} done, {sum(seconds) / len(seconds):.1f}s each", flush=True)
 data["llm_predicted"] = answers
 data["llm_seconds"] = seconds
 data[["product", "tfidf_predicted", "llm_predicted"]].head(10)
 
 # %% [markdown]
 # ### Compare
-# Same 200 complaints, same right answers. The classic model was trained on our data; the LLM saw only the list.
+# Same 120 complaints, same right answers. The classic model was trained on our data; the LLM saw only the list.
 
 # %%
 from sklearn.metrics import accuracy_score, f1_score
@@ -150,8 +152,8 @@ save_table(data.drop(columns=["narrative"]), "llm_predictions")
 # %% [markdown]
 # ## Part 3 · A complaints assistant
 # ### Step 1: find the relevant complaints (retrieval)
-# Before the LLM answers, we find the 8 complaints most similar to the question, using TF-IDF and cosine
-# similarity (how much two texts share the same important words). The LLM then answers **only** from those 8.
+# Before the LLM answers, we find the 6 complaints most similar to the question, using TF-IDF and cosine
+# similarity (how much two texts share the same important words). The LLM then answers **only** from those 6.
 # This is retrieval-augmented generation (RAG) in its simplest form.
 
 # %%
@@ -162,7 +164,7 @@ data = run_sql("SELECT complaint_id, product, date_received, text, narrative FRO
 index_vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), min_df=3, max_df=0.5, sublinear_tf=True)
 index = index_vec.fit_transform(data["text"])
 
-def retrieve(question: str, k: int = 8) -> pd.DataFrame:
+def retrieve(question: str, k: int = 6) -> pd.DataFrame:
     scores = linear_kernel(index_vec.transform([question.lower()]), index).ravel()
     best = scores.argsort()[::-1][:k]
     return data.iloc[best].assign(score=scores[best])
@@ -174,7 +176,7 @@ retrieve("Zelle scam bank refused refund")[["complaint_id", "product", "score"]]
 
 # %%
 def answer_prompt(question: str, found: pd.DataFrame) -> str:
-    shown = "\n\n".join(f"[{r.complaint_id}] ({r.product}) {r.narrative[:900]}" for r in found.itertuples())
+    shown = "\n\n".join(f"[{r.complaint_id}] ({r.product}) {r.narrative[:600]}" for r in found.itertuples())
     return ("You answer questions about consumer complaints using ONLY the complaints below. "
             "Cite the complaint IDs you use in square brackets, like [1234567]. "
             "If the complaints don't answer the question, say so. Keep it under 120 words.\n\n"
@@ -190,7 +192,7 @@ def ask(question: str) -> dict:
 
 # %% [markdown]
 # ### Ask a few questions a complaints manager would ask
-# We check each answer: every complaint ID it cites must be one of the 8 it was given. A made-up ID means the
+# We check each answer: every complaint ID it cites must be one of the 6 it was given. A made-up ID means the
 # model invented something.
 
 # %%
@@ -202,7 +204,11 @@ QUESTIONS = [
     "What goes wrong when people dispute errors on their credit report?",
     "What do customers say about credit card late fees and interest charges?",
 ]
-rows = [ask(q) for q in QUESTIONS]
+rows = []
+for q in QUESTIONS:
+    start = time.time()
+    rows.append(ask(q))
+    print(f"{time.time() - start:.0f}s · {q}", flush=True)
 data = pd.DataFrame(rows)
 data[["question", "cited", "made_up_citations"]]
 

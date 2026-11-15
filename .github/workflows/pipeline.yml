@@ -14,7 +14,7 @@ concurrency:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 300
+    timeout-minutes: 280
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,8 +30,14 @@ jobs:
         with:
           path: ~/.cache/huggingface
           key: hf-qwen2.5-3b-instruct
-      - name: Run notebooks 02 to 07
-        run: python scripts/run_notebooks.py 02 03 04 05 06 07
+      - name: Run notebooks 02 to 05 (data, SQL, routing model, topics)
+        run: python scripts/run_notebooks.py 02 03 04 05
+      - name: Run notebook 06 (LLM steps)
+        timeout-minutes: 180
+        run: python scripts/run_notebooks.py 06
+      - name: Run notebook 07 (export for the website)
+        if: always()
+        run: python scripts/run_notebooks.py 07
       - name: Commit results
         if: always()
         run: |

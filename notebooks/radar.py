@@ -102,9 +102,13 @@ LOCAL_MODEL = os.environ.get("RADAR_LOCAL_MODEL", "Qwen/Qwen2.5-3B-Instruct")
 
 def _local_llm(prompt: str, max_tokens: int) -> str:
     if "pipe" not in _local:
+        import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
+        torch.set_num_threads(os.cpu_count() or 4)             # use every CPU core
         tok = AutoTokenizer.from_pretrained(LOCAL_MODEL)
-        model = AutoModelForCausalLM.from_pretrained(LOCAL_MODEL, torch_dtype="auto")
+        # float32: most CPUs have no fast bfloat16 maths, so the model's default bfloat16 is many times slower
+        model = AutoModelForCausalLM.from_pretrained(LOCAL_MODEL, torch_dtype=torch.float32)
+        model.eval()
         _local["pipe"] = (tok, model)
     tok, model = _local["pipe"]
     import torch
