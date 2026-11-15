@@ -93,7 +93,20 @@ def llm(prompt: str, max_tokens: int = 300) -> str:
         safe = prompt.replace("'", "''")                        # escape quotes for SQL
         out = _spark().sql(f"SELECT ai_query('{model}', '{safe}', modelParameters => named_struct('max_tokens', {max_tokens}, 'temperature', 0.0)) AS a")
         return out.first().a.strip()
-    return _local_llm(prompt, max_tokens)
+    return _cached_llm(prompt, max_tokens)
+
+
+LLM_CACHE = ROOT / "data" / "llm_cache.json"   # saved answers, so a rerun only asks the prompts that changed
+
+
+def _cached_llm(prompt: str, max_tokens: int) -> str:
+    import hashlib, json
+    cache = json.loads(LLM_CACHE.read_text()) if LLM_CACHE.exists() else {}
+    key = hashlib.md5(f"{LOCAL_MODEL}|{max_tokens}|{prompt}".encode()).hexdigest()
+    if key not in cache:
+        cache[key] = _local_llm(prompt, max_tokens)              # greedy decoding, so the same prompt gives the same answer
+        LLM_CACHE.write_text(json.dumps(cache, indent=0))
+    return cache[key]
 
 
 _local = {}

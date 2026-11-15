@@ -29,6 +29,9 @@ print(f"{len(topics)} topics, {len(data)} example complaints")
 
 # %% [markdown]
 # ### The prompt
+# We ask it to describe the problem without naming companies: a theme is a pattern across many firms,
+# and a name like "Bank X fraud" would read as an accusation.
+#
 # We give the model the topic's top words and its 4 most typical complaints (cut to 450 characters each), and ask
 # for a short name and a two-sentence summary, as JSON so the answer is easy to read back.
 
@@ -38,6 +41,7 @@ def topic_prompt(words: str, complaints: list) -> str:
     return (
         "You are an analyst at a bank reviewing customer complaints sent to the US CFPB.\n"
         f"These complaints share one theme. Key words: {words}.\n\n{shown}\n\n"
+        "Describe the problem, not a company: do not put any company, bank or app name in the name or the summary.\n"
         "Reply with JSON only, no other text, in exactly this form:\n"
         '{"name": "<3 to 6 word name for the theme>", "summary": "<2 sentences: what customers are complaining about and what went wrong>"}'
     )
@@ -185,7 +189,8 @@ def answer_prompt(question: str, found: pd.DataFrame) -> str:
 def ask(question: str) -> dict:
     found = retrieve(question)
     text = llm(answer_prompt(question, found), max_tokens=220)
-    cited = set(re.findall(r"\[(\d+)\]", text))
+    # IDs inside any square brackets, including grouped ones like [123, 456]
+    cited = set(re.findall(r"\d{6,}", " ".join(re.findall(r"\[([^\]]+)\]", text))))
     real = set(found["complaint_id"].astype(str))
     return {"question": question, "answer": text, "sources": found["complaint_id"].astype(str).tolist(),
             "cited": sorted(cited), "made_up_citations": sorted(cited - real)}
