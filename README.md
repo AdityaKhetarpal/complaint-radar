@@ -10,7 +10,7 @@ Live site: **[complaintradar.vercel.app](https://complaintradar.vercel.app)**
 A bank or regulator receives thousands of complaints a month as free text. Nobody can read them all, so it's hard to know
 what people complain about most, whether it's getting worse, and which team should handle each complaint.
 
-This project turns [X] complaints (January 2025 to 14 August 2026) into:
+This project turns 10.3 million complaints (January 2025 to 14 August 2026) into:
 
 1. **Trends and gold tables** a manager can query in plain English with a Databricks **Genie** space
 2. **A routing model** that reads a complaint and predicts the product team (text classification)
@@ -21,11 +21,11 @@ This project turns [X] complaints (January 2025 to 14 August 2026) into:
 
 | | |
 |---|---|
-| Complaints analysed | [X] (all complaints), [X] narratives in the modeling sample |
-| Routing model (best of 3) | macro F1 [X] vs [X] for the baseline |
-| Auto-routing at 80% confidence | [X] of complaints routed, [X] of those correct |
+| Complaints analysed | 10,294,495 (all complaints, for counts and trends); 26,558 narratives in the modeling sample |
+| Routing model (best of 3: linear SVM) | macro F1 76.4%, accuracy 82.8% on 5,312 held-out complaints, vs 2.3% macro F1 for the baseline |
+| Auto-routing at 80% confidence | 57.7% of complaints routed automatically, 94.8% of those correct |
 | LLM zero-shot routing (Qwen2.5-3B) | macro F1 [X] vs [X] for the trained model on the same complaints |
-| Themes found | [X] |
+| Themes found | 20 |
 | Assistant answers with made-up citations | [X] of [X] |
 
 ## How it works

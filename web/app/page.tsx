@@ -57,7 +57,10 @@ export default function Home() {
             <h3>The other products, on their own scale</h3>
             <p className="sub">{biggest} is {pct(products[0].share_pct)} of all complaints, which flattens every other product in the chart above.</p>
             <LineChart months={months} series={others} kind="compact" yLabel="Complaints" height={260} />
-            <p className="source">The five next-largest products. Source: CFPB.</p>
+            <p className="source">
+              The five next-largest products. The January 2025 spike is in the CFPB data: 42,521 money-transfer complaints were filed under
+              &ldquo;Other transaction problem&rdquo; that month, against 3,720 in February. Source: CFPB.
+            </p>
           </div>
         </section>
 

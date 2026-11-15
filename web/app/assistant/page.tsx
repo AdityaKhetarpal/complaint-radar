@@ -5,9 +5,11 @@ export const metadata: Metadata = { title: "Complaints assistant", description: 
 
 // turn "[1234567]" citations into links to the quoted complaint below the answer
 function withLinks(text: string, qi: number) {
-  return text.split(/(\[\d+\])/g).map((part, i) => {
-    const m = part.match(/^\[(\d+)\]$/);
-    return m ? <a key={i} className="cite" href={`#q${qi}-${m[1]}`}>[{m[1]}]</a> : <span key={i}>{part}</span>;
+  // citations look like [123] or, grouped, [123, 456]: link every ID inside the brackets
+  return text.split(/(\[\d{6,}(?:\s*,\s*\d{6,})*\])/g).map((part, i) => {
+    const ids = /^\[[\d,\s]+\]$/.test(part) ? part.match(/\d{6,}/g) ?? [] : [];
+    if (!ids.length) return <span key={i}>{part}</span>;
+    return <span key={i}>[{ids.map((id, j) => <span key={id}>{j > 0 && ", "}<a className="cite" href={`#q${qi}-${id}`}>{id}</a></span>)}]</span>;
   });
 }
 
@@ -16,6 +18,7 @@ export default function Assistant() {
   const answers = assistant.answers;
   const clean = answers.filter((a) => !a.made_up_citations).length;
   const citing = answers.filter((a) => a.cited).length;
+  const k = answers[0]?.sources.split(",").length ?? 0;   // how many complaints each question searched
 
   return (
     <div className="wrap">
@@ -23,8 +26,8 @@ export default function Assistant() {
         <div className="kicker">Retrieval-augmented generation · {overview.headline.llm}</div>
         <h1>Ask the complaints, get answers you can check</h1>
         <p>
-          For each question, the assistant first finds the 8 complaints most similar to it (TF-IDF retrieval), then a language model answers using only
-          those complaints and cites them by ID. Every citation is then checked against the 8 it was given.
+          For each question, the assistant first finds the {k} complaints most similar to it (TF-IDF retrieval), then a language model answers using only
+          those complaints and cites them by ID. Every citation is then checked against the {k} it was given.
         </p>
       </div>
 
