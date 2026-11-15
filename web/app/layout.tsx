@@ -6,7 +6,7 @@ import Nav from "@/components/Nav";
 import Motion from "@/components/Motion";
 import { overview, dateName } from "@/lib/data";
 
-const SITE = "https://complaintradar.vercel.app";
+const SITE = "https://cfpb-complaint-radar.vercel.app";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),

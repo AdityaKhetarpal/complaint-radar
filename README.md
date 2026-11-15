@@ -3,7 +3,7 @@
 **What US bank customers complain about, and a model that sends each complaint to the right team.**
 A Databricks lakehouse project on the US Consumer Financial Protection Bureau (CFPB) complaint database.
 
-Live site: **[complaintradar.vercel.app](https://complaintradar.vercel.app)**
+Live site: **[cfpb-complaint-radar.vercel.app](https://cfpb-complaint-radar.vercel.app)**
 
 ## The problem
 
