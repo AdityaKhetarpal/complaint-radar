@@ -15,7 +15,7 @@ jobs:
           cache: pip
       - run: pip install -r requirements.txt
       - name: Run notebook 01
-        run: jupyter nbconvert --to notebook --execute --inplace --ExecutePreprocessor.timeout=-1 notebooks/01_acquire.ipynb
+        run: python scripts/run_notebooks.py 01
       - name: Commit the data files
         run: |
           git config user.name "Aditya Khetarpal"
