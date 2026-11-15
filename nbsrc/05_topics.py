@@ -21,60 +21,79 @@ data = run_sql("SELECT complaint_id, date_received, product, issue, text, narrat
 print(f"{len(data):,} complaints")
 
 # %% [markdown]
+# ### Copy-paste letters
+# Some complaints are the same letter sent many times (often from credit repair templates). If we kept every copy,
+# a single template would become its own "topic". So the model learns from one copy of each letter: we treat
+# complaints whose first 200 characters are identical as copies. Every complaint still gets a topic afterwards.
+
+# %%
+data["opening"] = data["text"].str.slice(0, 200)
+copies = data.groupby("opening")["complaint_id"].transform("count")
+print(f"{(copies > 1).sum():,} complaints share their opening with another complaint")
+unique = data.drop_duplicates("opening")
+print(f"{len(unique):,} distinct letters to learn the topics from")
+
+# %% [markdown]
 # ### Words to ignore
-# Besides normal English stop words ("the", "and"), complaint letters repeat words that say nothing about the
-# topic ("company", "called", "told"). Removing them makes the topics sharper.
+# Besides normal English stop words ("the", "and"), we drop two kinds of words:
+# * words every complaint letter uses ("called", "told", "tried")
+# * words every **financial** complaint uses ("bank", "account", "payment", "credit"), which would otherwise pull
+#   very different problems into one big "money" topic
+#
+# What's left are the words that tell problems apart: "escrow", "repossession", "overdraft", "identity theft".
 
 # %%
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS, TfidfVectorizer
 
-EXTRA = {"told", "called", "call", "said", "asked", "company", "received", "time", "day", "days", "did", "know",
-         "just", "like", "want", "need", "got", "going", "make", "made", "able", "help", "contacted", "contact",
-         "phone", "email", "letter", "sent", "number", "information", "amount", "consumer", "cfpb", "complaint",
-         "please", "thank", "regarding", "stated", "says", "dont", "didnt", "im", "ive", "month", "months", "year",
-         "years", "today", "week", "weeks", "also", "would", "could", "still", "never", "even", "one", "two", "get"}
-STOP = list(ENGLISH_STOP_WORDS | EXTRA)
+LETTER_WORDS = {"told", "called", "call", "said", "asked", "company", "received", "time", "day", "days", "did", "know",
+                "just", "like", "want", "need", "got", "going", "make", "made", "able", "help", "contacted", "contact",
+                "phone", "email", "letter", "sent", "number", "information", "amount", "consumer", "cfpb", "complaint",
+                "please", "thank", "regarding", "stated", "says", "dont", "didnt", "im", "ive", "month", "months", "year",
+                "years", "today", "week", "weeks", "also", "would", "could", "still", "never", "even", "one", "two", "get",
+                "tried", "times", "send", "went", "trying", "saying", "person", "don", "getting", "despite", "issue",
+                "resolve", "request", "requesting", "multiple", "review", "explanation"}
+MONEY_WORDS = {"bank", "card", "credit", "account", "accounts", "money", "loan", "payment", "payments", "report",
+               "pay", "paid", "funds", "balance", "usc", "section", "act", "law", "fcra", "fdcpa"}
+STOP = list(ENGLISH_STOP_WORDS | LETTER_WORDS | MONEY_WORDS)
 
-vectorizer = TfidfVectorizer(stop_words=STOP, ngram_range=(1, 2), min_df=10, max_df=0.4, max_features=40_000, sublinear_tf=True)
-X = vectorizer.fit_transform(data["text"])
+vectorizer = TfidfVectorizer(stop_words=STOP, ngram_range=(1, 2), min_df=15, max_df=0.25, max_features=30_000, sublinear_tf=True)
+X = vectorizer.fit_transform(unique["text"])
 X.shape
 
 # %% [markdown]
 # ### How many topics?
-# There's no single right number. We try a few and keep the one where topics are most distinct from each other
-# (lowest average overlap between their top words), between 10 and 18 so the result is readable.
+# There's no single right number. Too few and different problems merge (car loans and mortgages become one
+# "loans" topic); too many and one problem splits into fragments. We try 12, 16 and 20, look at how much the top
+# words of different topics overlap (lower is better: topics are more distinct), and how evenly complaints spread.
 
 # %%
 import numpy as np
+import pandas as pd
 from sklearn.decomposition import NMF
 
 words = np.array(vectorizer.get_feature_names_out())
 
-def top_words(model, n=12):
-    return [set(words[np.argsort(row)[::-1][:n]]) for row in model.components_]
-
-def overlap(model):
-    tops = top_words(model)
-    pairs = [len(a & b) / 12 for i, a in enumerate(tops) for b in tops[i + 1:]]
-    return float(np.mean(pairs))
+def overlap(model, n=12):
+    tops = [set(words[np.argsort(row)[::-1][:n]]) for row in model.components_]
+    return float(np.mean([len(a & b) / n for i, a in enumerate(tops) for b in tops[i + 1:]]))
 
 tries = []
-for k in [10, 12, 14, 16, 18]:
-    model = NMF(n_components=k, init="nndsvda", random_state=42, max_iter=400)
-    model.fit(X)
-    tries.append({"topics": k, "avg_word_overlap": round(overlap(model), 4)})
-import pandas as pd
+for k in [12, 16, 20]:
+    model = NMF(n_components=k, init="nndsvda", random_state=42, max_iter=500)
+    sizes = np.bincount(model.fit_transform(X).argmax(axis=1), minlength=k)
+    tries.append({"topics": k, "avg_word_overlap": round(overlap(model), 4), "biggest_topic_share_pct": round(100 * sizes.max() / sizes.sum(), 1)})
 data_tries = pd.DataFrame(tries)
 data_tries
 
 # %% [markdown]
 # ### Fit the final model
-# Among the tries, take the number of topics with the least overlap.
+# We use 20 topics: at 12 and 16, separate problems (car loans and late fees, for example) were still merged.
 
 # %%
-K = int(data_tries.sort_values(["avg_word_overlap", "topics"]).iloc[0]["topics"])
+K = 20
 nmf = NMF(n_components=K, init="nndsvda", random_state=42, max_iter=600)
-W = nmf.fit_transform(X)                     # complaint x topic weights
+nmf.fit(X)
+W = nmf.transform(vectorizer.transform(data["text"]))     # topic weights for every complaint, copies included
 print(f"{K} topics")
 
 # %% [markdown]
@@ -90,7 +109,8 @@ data["topic"].value_counts().sort_index()
 
 # %% [markdown]
 # ### Describe each topic
-# For each topic: its top words, how many complaints it holds, and which product those complaints come from.
+# For each topic: its top words, how many complaints it holds, which product those complaints come from, and how
+# many are copies of the same letter (a high share means a copy-paste campaign rather than many separate stories).
 
 # %%
 rows = []
@@ -103,6 +123,7 @@ for t in range(K):
         "complaints": len(members),
         "share_pct": round(100 * len(members) / len(data), 1),
         "main_products": "; ".join(f"{p} {v:.0%}" for p, v in product_mix.items()),
+        "copy_pct": round(100 * (copies[members.index] > 1).mean(), 1) if len(members) else 0.0,  # share that are copy-paste letters
         "top_issue": members["issue"].mode()[0] if len(members) else None,
     })
 topics = pd.DataFrame(rows)

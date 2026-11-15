@@ -12,6 +12,7 @@ export default function Themes() {
   const big = list.slice(0, 4);
   const series = big.map((t) => ({ name: name(t), values: months.map((m) => topics.trend.find((r) => r.month === m && r.topic === t.topic)?.share_pct ?? null) }));
   const h = overview.headline;
+  const campaigns = list.filter((t) => t.copy_pct >= 40).length;
 
   return (
     <div className="wrap">
@@ -36,7 +37,10 @@ export default function Themes() {
 
       <section className="section" data-reveal>
         <h2>All {list.length} themes</h2>
-        <p className="sub">Biggest first. Shares are of the balanced sample, so they show what complaint letters talk about, not how common each product is.</p>
+        <p className="sub">
+          Biggest first. Shares are of the balanced sample, so they show what complaint letters talk about, not how common each product is.
+          {campaigns > 0 && <> {campaigns} themes are mostly <b>copy-paste letters</b>: the same text sent many times, often from credit repair templates.</>}
+        </p>
         <div className="grid g2">
           {list.map((t) => (
             <article key={t.topic} className="card topic">
@@ -45,6 +49,7 @@ export default function Themes() {
               <div className="meta">
                 <span><b>{n(t.complaints)}</b> complaints ({pct(t.share_pct)})</span>
                 <span>Mostly: {t.main_products}</span>
+                <span>{t.copy_pct >= 40 ? <b style={{ color: "var(--accent)" }}>Copy-paste campaign: {pct(t.copy_pct, 0)} are repeated letters</b> : <>{pct(t.copy_pct, 0)} repeated letters</>}</span>
               </div>
               <p className="words"><b>Key words:</b> {t.top_words}</p>
               <details>
