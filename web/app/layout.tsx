@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   description:
     "A Databricks lakehouse project on US consumer finance complaints: routing complaints with text classification, finding themes with topic modeling, LLM summaries and a complaints assistant.",
   openGraph: { title: "Complaint Radar", description: "What US bank customers complain about, and a model that routes each complaint to the right team.", url: SITE, siteName: "Complaint Radar", type: "website" },
+  twitter: { card: "summary_large_image", title: "Complaint Radar", description: "What US bank customers complain about, and a model that routes each complaint to the right team." },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

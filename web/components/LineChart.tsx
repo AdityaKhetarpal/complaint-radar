@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 export type Series = { name: string; values: (number | null)[] };
 
@@ -20,7 +20,19 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
   const format = FORMATS[kind];
   const [hidden, setHidden] = useState<string[]>([]);
   const [hover, setHover] = useState<number | null>(null);
-  const W = 760, H = height, L = 56, R = 12, T = 12, B = 30;
+  // draw at the box's real width (not a scaled-down 760px picture), so the axis labels stay readable on a phone
+  const box = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(760);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const narrow = W < 520;
+  // wide boxes get a bit taller so the lines keep their shape
+  const H = narrow ? Math.round(height * 0.8) : Math.round(height * Math.min(1.3, Math.max(1, W / 760))), L = narrow ? 44 : 56, R = narrow ? 8 : 12, T = 12, B = 30;
   const shown = series.filter((s) => !hidden.includes(s.name));
   const max = useMemo(() => {
     const all = shown.flatMap((s) => s.values.filter((v): v is number => v != null));
@@ -31,10 +43,10 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
   const x = (i: number) => L + (i * (W - L - R)) / Math.max(months.length - 1, 1);
   const y = (v: number) => T + (H - T - B) * (1 - v / max);
   const ticks = [0, 0.25, 0.5, 0.75, 1].map((f) => f * max);
-  const every = Math.ceil(months.length / 8);
+  const every = Math.ceil(months.length / (narrow ? 4 : 8));
 
   return (
-    <div>
+    <div ref={box}>
       <div className="legend">
         {series.map((s, i) => (
           <button key={s.name} type="button" aria-pressed={!hidden.includes(s.name)}
@@ -44,8 +56,8 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
         ))}
       </div>
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`${yLabel} by month`}
-        onMouseLeave={() => setHover(null)}
-        onMouseMove={(e) => {
+        onPointerLeave={() => setHover(null)}
+        onPointerMove={(e) => {
           const box = (e.currentTarget as SVGSVGElement).getBoundingClientRect();
           const px = ((e.clientX - box.left) / box.width) * W;
           const i = Math.round(((px - L) / (W - L - R)) * (months.length - 1));
@@ -59,7 +71,7 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
             </g>
           ))}
         </g>
-        {months.map((m, i) => (i % every === 0 || i === months.length - 1) && (
+        {months.map((m, i) => ((i % every === 0 && months.length - 1 - i >= every * 0.6) || i === months.length - 1) && (
           <text key={m} x={x(i)} y={H - 8} textAnchor="middle">{label(m)}</text>
         ))}
         {series.map((s, si) => hidden.includes(s.name) ? null : (
@@ -76,7 +88,7 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
       <div className="tip" aria-live="polite">
         {hover != null ? (
           <><b>{label(months[hover])}</b>{shown.map((s) => s.values[hover] == null ? null : <span key={s.name}> · {s.name} {format(s.values[hover] as number)}</span>)}</>
-        ) : "Hover the chart to read the values. Click a name above to hide or show its line."}
+        ) : "Hover or tap the chart to read the values. Click a name above to hide or show its line."}
       </div>
     </div>
   );

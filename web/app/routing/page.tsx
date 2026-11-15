@@ -85,7 +85,7 @@ export default function Routing() {
         {mixups[0] && mixups[0].share > 0 && (
           <p className="sub">The biggest mix-up: {pct(100 * mixups[0].share)} of {mixups[0].a} complaints were routed to {mixups[0].p}. Often both are true, for example a debt collector reporting a debt to the credit bureaus.</p>
         )}
-        <div className="card" style={{ overflowX: "auto" }}>
+        <div className="card scroll-x">
           <div className="heat" style={{ gridTemplateColumns: `minmax(110px, 150px) repeat(${labels.length}, minmax(34px, 1fr))`, minWidth: 560 }}>
             <span />
             {labels.map((p) => <span key={p} className="cl" title={p}>{p}</span>)}

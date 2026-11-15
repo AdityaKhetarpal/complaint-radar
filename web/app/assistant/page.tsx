@@ -13,6 +13,27 @@ function withLinks(text: string, qi: number) {
   });
 }
 
+// the model writes plain text: paragraphs, and lists as lines that start with "-", "*" or "•"
+function Answer({ text, qi }: { text: string; qi: number }) {
+  const blocks: { list: boolean; lines: string[] }[] = [];
+  for (const raw of text.split("\n")) {
+    const line = raw.trim();
+    if (!line) { blocks.push({ list: false, lines: [] }); continue; }
+    const item = /^[-*•]\s*/.test(line);
+    const last = blocks[blocks.length - 1];
+    if (last && last.list === item && last.lines.length && item) last.lines.push(line.replace(/^[-*•]\s*/, ""));
+    else if (last && !item && !last.list && last.lines.length) last.lines.push(line);
+    else blocks.push({ list: item, lines: [item ? line.replace(/^[-*•]\s*/, "") : line] });
+  }
+  return (
+    <div className="a">
+      {blocks.filter((b) => b.lines.length).map((b, i) => b.list
+        ? <ul key={i}>{b.lines.map((l, j) => <li key={j}>{withLinks(l, qi)}</li>)}</ul>
+        : <p key={i}>{withLinks(b.lines.join(" "), qi)}</p>)}
+    </div>
+  );
+}
+
 export default function Assistant() {
   const byId = Object.fromEntries(assistant.sources.map((s) => [s.complaint_id, s]));
   const answers = assistant.answers;
@@ -49,7 +70,7 @@ export default function Assistant() {
           <section key={a.question} className="section" data-reveal>
             <div className="card qa">
               <div className="q">{a.question}</div>
-              <div className="a">{withLinks(a.answer, qi)}</div>
+              <Answer text={a.answer} qi={qi} />
               <div className="row">
                 {madeUp.length === 0
                   ? <span className="check ok">✓ {cited.length ? `all ${cited.length} citations are real complaints` : "no citations made up"}</span>
