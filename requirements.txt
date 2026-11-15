@@ -1,0 +1,10 @@
+pandas>=2.2
+pyarrow>=17
+duckdb>=1.1
+scikit-learn>=1.5
+mlflow-skinny>=3.0
+requests>=2.32
+matplotlib>=3.9
+jupytext>=1.16
+nbclient>=0.10
+ipykernel>=6.29

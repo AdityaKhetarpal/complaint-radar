@@ -1,0 +1,12 @@
+data/raw/
+data/*.duckdb
+data/*.duckdb.wal
+mlruns/
+mlruns.db
+mlartifacts/
+__pycache__/
+.ipynb_checkpoints/
+node_modules/
+.next/
+.env*
+.vercel
