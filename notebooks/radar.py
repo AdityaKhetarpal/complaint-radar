@@ -78,7 +78,7 @@ def mlflow_setup(name: str = "complaint-radar"):
         mlflow.set_registry_uri("databricks-uc")                 # register models in Unity Catalog
         mlflow.set_experiment(f"/Users/{user}/{name}")
     else:
-        mlflow.set_tracking_uri(f"sqlite:///{(ROOT / 'mlruns.db').as_posix()}")   # a local file, ignored by git
+        mlflow.set_tracking_uri(f"sqlite:///{(ROOT / 'mlruns.db').as_posix()}")   # a local database file, ignored by git
         mlflow.set_experiment(name)
     return mlflow
 
@@ -86,6 +86,8 @@ def mlflow_setup(name: str = "complaint-radar"):
 def llm(prompt: str, max_tokens: int = 300) -> str:
     """Ask a language model. On Databricks this uses a pay-per-token Foundation Model endpoint through ai_query();
     locally it runs a small open model (Qwen2.5) on the CPU, so no API key is ever needed."""
+    if os.environ.get("RADAR_FAKE_LLM"):                       # used only by the code tests, never for real results
+        return '{"name": "Test theme", "summary": "Test summary."} Credit card [%s]' % os.environ.get("RADAR_FAKE_ID", "1")
     if ON_DATABRICKS:
         model = os.environ.get("RADAR_LLM_ENDPOINT", "databricks-meta-llama-3-3-70b-instruct")
         safe = prompt.replace("'", "''")                        # escape quotes for SQL

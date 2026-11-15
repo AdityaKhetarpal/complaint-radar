@@ -127,6 +127,7 @@ print("best:", best_name)
 # %%
 from sklearn.metrics import classification_report
 data = pd.DataFrame(classification_report(test["product"], pred, output_dict=True)).T.round(3)
+save_table(data.rename_axis("label").reset_index(), "class_report")
 data
 
 # %% [markdown]
@@ -140,6 +141,7 @@ from sklearn.metrics import confusion_matrix
 labels = sorted(data.index.drop(["accuracy", "macro avg", "weighted avg"]))
 matrix = confusion_matrix(test["product"], pred, labels=labels)
 data = pd.DataFrame(matrix, index=labels, columns=labels)
+save_table(data.rename_axis("actual").reset_index().melt(id_vars="actual", var_name="predicted", value_name="complaints"), "confusion")
 data
 
 # %% [markdown]
@@ -161,6 +163,7 @@ for bar in [0.0, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95]:
                  "auto_routed_pct": round(100 * sure.mean(), 1),
                  "accuracy_of_auto_routed_pct": round(100 * (lr_pred[sure] == test["product"].values[sure]).mean(), 1)})
 data = pd.DataFrame(rows)
+save_table(data, "routing")
 data
 
 # %% [markdown]
@@ -176,22 +179,27 @@ for i, product in enumerate(clf.classes_):
     top = np.argsort(clf.coef_[i])[::-1][:10]
     rows.append({"product": product, "top_phrases": ", ".join(words[top])})
 data = pd.DataFrame(rows)
+save_table(data, "top_phrases")
 data
 
 # %% [markdown]
 # ### Look at mistakes
+# We save 12 random wrong predictions.
 # Reading wrong predictions is the fastest way to learn what the model can't do. Many "mistakes" are complaints
 # that really are about two products.
 
 # %%
 data = test.assign(predicted=pred)
-data = data[data["product"] != data["predicted"]].sample(12, random_state=7)
+data = data[data["product"] != data["predicted"]]
+data = data.sample(min(12, len(data)), random_state=7)
 data["excerpt"] = data["narrative"].str.slice(0, 280) + "…"
-data[["complaint_id", "product", "predicted", "excerpt"]]
+data = data[["complaint_id", "product", "predicted", "excerpt"]]
+save_table(data, "mistakes")
+data
 
 # %% [markdown]
-# ### Save the results as tables
-# The test predictions and the scores go to tables, for the website and for anyone who wants to dig in.
+# ### Save the predictions and the scores as tables
+# For the website and for anyone who wants to dig in.
 
 # %%
 data = test[["complaint_id", "product"]].assign(predicted=lr_pred, confidence=confidence.round(4))

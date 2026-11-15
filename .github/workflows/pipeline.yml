@@ -1,0 +1,42 @@
+name: Pipeline
+# Runs notebooks 02 to 07 on the committed data (Qwen2.5-3B on the CPU for the LLM steps),
+# then commits the notebooks with their outputs and the JSON the website reads.
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["data/*.parquet"]
+permissions:
+  contents: write
+concurrency:
+  group: pipeline
+  cancel-in-progress: false
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install
+        run: |
+          pip install -r requirements.txt
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install "transformers>=4.46" accelerate
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/huggingface
+          key: hf-qwen2.5-3b-instruct
+      - name: Run notebooks 02 to 07
+        run: python scripts/run_notebooks.py 02 03 04 05 06 07
+      - name: Commit results
+        if: always()
+        run: |
+          git config user.name "Aditya Khetarpal"
+          git config user.email "80028073+AdityaKhetarpal@users.noreply.github.com"
+          git add notebooks/*.ipynb web/public/data/*.json
+          git commit -m "Pipeline results: notebooks 02-07 run on the CFPB data" || exit 0
+          for i in 1 2 3 4; do git pull --rebase -q && git push -q && break; sleep 8; done
