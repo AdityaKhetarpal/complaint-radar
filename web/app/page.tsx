@@ -9,11 +9,10 @@ export default function Home() {
   const { headline: h, monthly, products, issues, growth } = overview;
   const months = [...new Set(monthly.map((m) => m.month))].sort();
   const total = months.map((m) => monthly.filter((r) => r.month === m).reduce((s, r) => s + r.complaints, 0));
-  const topProducts = products.slice(0, 5).map((p) => p.product);
-  const series = [
-    { name: "All products", values: total },
-    ...topProducts.map((p) => ({ name: p, values: months.map((m) => monthly.find((r) => r.month === m && r.product === p)?.complaints ?? 0) })),
-  ];
+  const line = (p: string) => months.map((m) => monthly.find((r) => r.month === m && r.product === p)?.complaints ?? 0);
+  const biggest = products[0].product;
+  const series = [{ name: "All products", values: total }, { name: biggest, values: line(biggest) }];
+  const others = products.slice(1, 6).map((p) => ({ name: p.product, values: line(p.product) }));
   const first = total[0], last = total[total.length - 1];
   const best = model.scores[0];
   const named = topics.topics.filter((t) => t.name);
@@ -53,6 +52,12 @@ export default function Home() {
           <div className="card">
             <LineChart months={months} series={series} kind="compact" yLabel="Complaints" />
             <p className="source">All complaints in the archive, with or without a written narrative. August 2026 is left out because the archive stops on 14 August. Source: CFPB.</p>
+          </div>
+          <div className="card" style={{ marginTop: 20 }}>
+            <h3>The other products, on their own scale</h3>
+            <p className="sub">{biggest} is {pct(products[0].share_pct)} of all complaints, which flattens every other product in the chart above.</p>
+            <LineChart months={months} series={others} kind="compact" yLabel="Complaints" height={260} />
+            <p className="source">The five next-largest products. Source: CFPB.</p>
           </div>
         </section>
 
