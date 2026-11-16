@@ -188,3 +188,10 @@ footer .wrap { display: grid; gap: 6px; }
 [data-reveal] { opacity: 1; }
 html.js [data-reveal] { opacity: 0; transform: translateY(14px); }
 @media (prefers-reduced-motion: reduce) { html.js [data-reveal] { opacity: 1; transform: none; } }
+
+/* personal details removed by the CFPB */
+.redacted { display: inline-block; padding: 0 5px; margin: 0 1px; border-radius: 4px; background: var(--line); color: var(--muted); font-size: 0.78em; line-height: 1.5; letter-spacing: 0.02em; vertical-align: 0.08em; white-space: nowrap; }
+
+/* hint that the heatmap scrolls sideways on small screens */
+.swipe { display: none; color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+@media (max-width: 640px) { .swipe { display: block; } }

@@ -55,5 +55,3 @@ export const modelLabel: Record<string, string> = {
   complement_nb: "Complement naive Bayes",
 };
 
-// CFPB narratives mask personal details as XXXX; show them as a neutral redaction mark
-export const redact = (t: string) => t.replace(/X{2,}(\/X{2,})*(\/\d{2,4})?/g, "▇▇").replace(/\{\$([\d,.]+)\}/g, "$$$1");

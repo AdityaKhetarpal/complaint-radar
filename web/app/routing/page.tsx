@@ -1,6 +1,7 @@
+import Redacted from "@/components/Redacted";
 import type { Metadata } from "next";
 import Bars from "@/components/Bars";
-import { model, overview, n, pct, modelLabel, redact } from "@/lib/data";
+import { model, overview, n, pct, modelLabel } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Routing model", description: "Text classification of US consumer finance complaints: TF-IDF models tracked in MLflow, a baseline, and an LLM zero-shot comparison." };
 
@@ -86,6 +87,7 @@ export default function Routing() {
           <p className="sub">The biggest mix-up: {pct(100 * mixups[0].share)} of {mixups[0].a} complaints were routed to {mixups[0].p}. Often both are true, for example a debt collector reporting a debt to the credit bureaus.</p>
         )}
         <div className="card scroll-x">
+          <p className="swipe">Swipe sideways to see every product →</p>
           <div className="heat" style={{ gridTemplateColumns: `minmax(110px, 150px) repeat(${labels.length}, minmax(34px, 1fr))`, minWidth: 560 }}>
             <span />
             {labels.map((p) => <span key={p} className="cl" title={p}>{p}</span>)}
@@ -149,7 +151,7 @@ export default function Routing() {
           <div className="grid g2">
             {model.mistakes.map((m) => (
               <blockquote key={m.complaint_id}>
-                {redact(m.excerpt)}
+                <Redacted text={m.excerpt} />
                 <small>Customer picked <b>{m.product}</b> · model said <b>{m.predicted}</b> · complaint {m.complaint_id}</small>
               </blockquote>
             ))}

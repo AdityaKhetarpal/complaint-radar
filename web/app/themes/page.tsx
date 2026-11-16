@@ -1,6 +1,7 @@
+import Redacted from "@/components/Redacted";
 import type { Metadata } from "next";
 import LineChart from "@/components/LineChart";
-import { topics, overview, n, pct, redact, dateName } from "@/lib/data";
+import { topics, overview, n, pct, dateName } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Themes", description: "Themes in US consumer finance complaints found by topic modeling (NMF), named and summarised by an LLM." };
 
@@ -57,7 +58,7 @@ export default function Themes() {
                 <div className="grid" style={{ gap: 10 }}>
                   {topics.examples.filter((e) => e.topic === t.topic).map((e) => (
                     <blockquote key={e.complaint_id}>
-                      {redact(e.narrative)}{e.narrative.length >= 600 ? "…" : ""}
+                      <Redacted text={e.narrative} />{e.narrative.length >= 600 ? "…" : ""}
                       <small>Complaint {e.complaint_id} · {e.product}</small>
                     </blockquote>
                   ))}
@@ -66,7 +67,7 @@ export default function Themes() {
             </article>
           ))}
         </div>
-        <p className="source">Complaint text as published by the CFPB, which removes names and other personal details (shown as ▇▇).</p>
+        <p className="source">Complaint text as published by the CFPB, which removes names and other personal details (shown as <span className="redacted">redacted</span>).</p>
       </section>
     </div>
   );

@@ -1,5 +1,6 @@
+import Redacted from "@/components/Redacted";
 import type { Metadata } from "next";
-import { assistant, overview, redact, dateName } from "@/lib/data";
+import { assistant, overview, dateName } from "@/lib/data";
 
 export const metadata: Metadata = { title: "Complaints assistant", description: "Retrieval-augmented answers about US consumer finance complaints, with every citation checked." };
 
@@ -82,7 +83,7 @@ export default function Assistant() {
                 <div className="grid" style={{ gap: 10 }}>
                   {shown.map((id) => byId[id] && (
                     <blockquote key={id} id={`q${qi}-${id}`}>
-                      {redact(byId[id].narrative)}{byId[id].narrative.length >= 700 ? "…" : ""}
+                      <Redacted text={byId[id].narrative} />{byId[id].narrative.length >= 700 ? "…" : ""}
                       <small>Complaint {id} · {byId[id].product} · received {dateName(byId[id].date_received)}</small>
                     </blockquote>
                   ))}
@@ -92,7 +93,7 @@ export default function Assistant() {
           </section>
         );
       })}
-      <p className="source">Complaints received 1 Jan 2025 to {dateName(overview.headline.archive_cutoff)}. Text as published by the CFPB, with personal details removed (▇▇).</p>
+      <p className="source">Complaints received 1 Jan 2025 to {dateName(overview.headline.archive_cutoff)}. Text as published by the CFPB, with personal details removed (shown as <span className="redacted">redacted</span>).</p>
     </div>
   );
 }
