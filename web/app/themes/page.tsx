@@ -18,7 +18,7 @@ export default function Themes() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">Topic modeling · NMF on TF-IDF · named by an LLM</div>
+        <div className="label">Topic modeling · NMF on TF-IDF · named by an LLM</div>
         <h1>The themes inside the complaint letters</h1>
         <p>
           The CFPB form makes customers pick an issue from a fixed list. Their own words say more. Topic modeling grouped {n(h.sample)} complaint

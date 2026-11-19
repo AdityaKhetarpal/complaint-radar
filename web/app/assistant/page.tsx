@@ -45,7 +45,7 @@ export default function Assistant() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">Retrieval-augmented generation · {overview.headline.llm}</div>
+        <div className="label">Retrieval-augmented generation · {overview.headline.llm}</div>
         <h1>Ask the complaints, get answers you can check</h1>
         <p>
           For each question, the assistant first finds the {k} complaints most similar to it (TF-IDF retrieval), then a language model answers using only

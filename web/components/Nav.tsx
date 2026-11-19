@@ -1,57 +1,43 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import Mark from "./Mark";
+import { LINKS } from "@/lib/links";
 
-const LINKS = [
-  ["/", "Overview"],
-  ["/themes", "Themes"],
-  ["/routing", "Routing model"],
-  ["/companies", "Companies"],
-  ["/assistant", "Assistant"],
-  ["/ask", "Ask the data"],
-  ["/method", "How it's built"],
-];
 
+// Desktop: every page in one row. Phones: a Menu button opens a numbered list of all seven pages,
+// so none of them hides off the edge of the screen.
 export default function Nav() {
   const path = usePathname();
-  const nav = useRef<HTMLElement>(null);
-  // fade an edge of the scrolling link row only when there are more links hidden past it
-  const [edges, setEdges] = useState("");
-  const measure = useCallback(() => {
-    const el = nav.current;
-    if (!el) return;
-    const left = el.scrollLeft > 2;
-    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
-    setEdges(`${left ? " fade-l" : ""}${right ? " fade-r" : ""}`);
-  }, []);
+  const [open, setOpen] = useState(false);
   useEffect(() => {
-    window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
-  }, [measure]);
-  // on a phone the links scroll sideways: keep the current page's link in view
-  useEffect(() => {
-    const el = nav.current;
-    const cur = el?.querySelector<HTMLElement>('[aria-current="page"]');
-    if (!el || !cur) return;
-    el.scrollLeft = cur.offsetLeft - (el.clientWidth - cur.offsetWidth) / 2;
-    requestAnimationFrame(measure);
-  }, [path, measure]);
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   return (
     <header className="top">
       <div className="wrap">
         <Link className="brand" href="/"><Mark />Complaint Radar</Link>
-        <nav className={`nav${edges}`} aria-label="Pages" ref={nav} onScroll={measure}>
+        <nav className="nav" aria-label="Pages">
           {LINKS.map(([href, label]) => (
             <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</Link>
           ))}
         </nav>
-        <a className="gh" href="https://github.com/AdityaKhetarpal/complaint-radar">
-          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5" /></svg>
-          Source
-        </a>
+        <button type="button" className="menu-btn" aria-expanded={open} aria-controls="sheet" onClick={() => setOpen((o) => !o)}>
+          <i aria-hidden="true" />{open ? "Close" : "Menu"}
+        </button>
       </div>
+      <nav id="sheet" className="sheet" data-open={open} aria-label="Pages" inert={!open}>
+        {LINKS.map(([href, label], i) => (
+          <Link key={href} href={href} aria-current={path === href ? "page" : undefined} onClick={() => setOpen(false)}>
+            <span>{String(i + 1).padStart(2, "0")}</span>{label}
+          </Link>
+        ))}
+      </nav>
     </header>
   );
 }

@@ -10,7 +10,7 @@ export default function Ask() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">Databricks Genie · trusted SQL queries · gold tables</div>
+        <div className="label">Databricks Genie · trusted SQL queries · gold tables</div>
         <h1>Ask the data in plain English</h1>
         <p>
           In Databricks, a <b>Genie space</b> lets a manager type a question and get a table or chart back: Genie writes the SQL. To keep it accurate, a Genie

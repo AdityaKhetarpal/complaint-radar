@@ -15,7 +15,7 @@ function load(src: string) {
   });
 }
 
-// A slow Vanta.js "net" in the corner of the hero: points joined by lines, like complaints linked into themes.
+// A slow, faint Vanta.js "net" behind the headline: points joined by lines, like complaints linked into themes.
 // Skipped for reduced motion and on small screens, and switched off while the hero is scrolled out of view
 // so it never competes with the charts for frames.
 export default function Vanta() {
@@ -31,8 +31,8 @@ export default function Vanta() {
       if (cancelled || effect || !visible || !window.VANTA) return;
       effect = window.VANTA.NET({
         el, mouseControls: false, touchControls: false, gyroControls: false,
-        color: dark ? 0x4b4f9a : 0xa5b4fc, backgroundColor: dark ? 0x111116 : 0xffffff,
-        points: 8, maxDistance: 20, spacing: 18, showDots: true, scale: 1, scaleMobile: 1,
+        color: 0x56743a, backgroundColor: dark ? 0x070a09 : 0x0d1210,
+        points: 7, maxDistance: 21, spacing: 19, showDots: true, scale: 1, scaleMobile: 1,
       });
     };
     const stop = () => { effect?.destroy(); effect = null; };

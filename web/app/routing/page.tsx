@@ -20,7 +20,7 @@ export default function Routing() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">Text classification · scikit-learn · tracked in MLflow</div>
+        <div className="label">Text classification · scikit-learn · tracked in MLflow</div>
         <h1>Reading a complaint and sending it to the right team</h1>
         <p>
           Every complaint has to reach the team that handles that product: cards, mortgages, debt collection and so on. Here a model reads only the
@@ -99,7 +99,7 @@ export default function Routing() {
                   const diag = a === p;
                   return (
                     <span key={p} className="c" title={`${a} → ${p}: ${cell(a, p)} complaints (${(100 * share).toFixed(1)}%)`}
-                      style={{ background: `color-mix(in srgb, ${diag ? "var(--accent)" : "var(--bad)"} ${Math.round(Math.min(1, share * (diag ? 1 : 4)) * 85)}%, var(--surface))`, color: share > (diag ? 0.5 : 0.12) ? "#fff" : "var(--muted)" }}>
+                      style={{ background: `color-mix(in srgb, ${diag ? "var(--heat-ok)" : "var(--heat-bad)"} ${Math.round(Math.min(1, share * (diag ? 1 : 4)) * 85)}%, var(--surface))`, color: share > (diag ? 0.5 : 0.12) ? "#fff" : "var(--muted)" }}>
                       {share >= 0.005 ? Math.round(100 * share) : ""}
                     </span>
                   );

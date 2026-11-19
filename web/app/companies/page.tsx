@@ -19,7 +19,7 @@ export default function Companies() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">SQL gold tables · gold_companies, gold_responses</div>
+        <div className="label">SQL gold tables · gold_companies, gold_responses</div>
         <h1>How companies respond to complaints</h1>
         <p>
           When the CFPB forwards a complaint, the company must reply. This page compares how the {rows.length} companies with the most complaints closed

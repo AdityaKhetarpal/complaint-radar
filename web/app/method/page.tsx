@@ -10,7 +10,7 @@ export default function Method() {
   return (
     <div className="wrap">
       <div className="head">
-        <div className="kicker">Databricks · Unity Catalog · MLflow · Genie · AI/BI</div>
+        <div className="label">Databricks · Unity Catalog · MLflow · Genie · AI/BI</div>
         <h1>How it&apos;s built</h1>
         <p>Seven notebooks run the whole project. The same notebooks run in a Databricks workspace and in GitHub Actions, which is how this website gets its numbers.</p>
       </div>
