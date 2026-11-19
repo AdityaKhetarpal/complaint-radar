@@ -26,7 +26,7 @@ export default function Ask() {
         const cols = e.result.length ? Object.keys(e.result[0]) : [];
         return (
           <section key={e.question} className="section" data-reveal>
-            <h3 style={{ fontSize: 22 }}>{e.question}</h3>
+            <h3 style={{ fontSize: 18, marginBottom: 12 }}>{e.question}</h3>
             <div className="grid g2" style={{ alignItems: "start" }}>
               <pre className="sql">{e.sql}</pre>
               <div className="table-wrap">

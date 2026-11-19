@@ -47,6 +47,10 @@ export default function Nav() {
             <Link key={href} href={href} aria-current={path === href ? "page" : undefined}>{label}</Link>
           ))}
         </nav>
+        <a className="gh" href="https://github.com/AdityaKhetarpal/complaint-radar">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5" /></svg>
+          Source
+        </a>
       </div>
     </header>
   );

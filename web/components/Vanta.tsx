@@ -15,27 +15,34 @@ function load(src: string) {
   });
 }
 
-// A slow Vanta.js "net" behind the hero: points joined by lines, like complaints linked into themes.
-// Skipped for reduced motion and on small screens.
+// A slow Vanta.js "net" in the corner of the hero: points joined by lines, like complaints linked into themes.
+// Skipped for reduced motion and on small screens, and switched off while the hero is scrolled out of view
+// so it never competes with the charts for frames.
 export default function Vanta() {
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth < 700) return;
+    const el = ref.current;
+    if (!el || matchMedia("(prefers-reduced-motion: reduce)").matches || innerWidth < 700) return;
     let effect: VantaEffect | null = null;
     let cancelled = false;
+    let visible = true;
     const dark = matchMedia("(prefers-color-scheme: dark)").matches;
+    const start = () => {
+      if (cancelled || effect || !visible || !window.VANTA) return;
+      effect = window.VANTA.NET({
+        el, mouseControls: false, touchControls: false, gyroControls: false,
+        color: dark ? 0x4b4f9a : 0xa5b4fc, backgroundColor: dark ? 0x111116 : 0xffffff,
+        points: 8, maxDistance: 20, spacing: 18, showDots: true, scale: 1, scaleMobile: 1,
+      });
+    };
+    const stop = () => { effect?.destroy(); effect = null; };
+    const io = new IntersectionObserver(([e]) => { visible = e.isIntersecting; if (visible) start(); else stop(); });
+    io.observe(el);
     load("https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js")
       .then(() => load("https://cdn.jsdelivr.net/npm/vanta@0.5.24/dist/vanta.net.min.js"))
-      .then(() => {
-        if (cancelled || !ref.current || !window.VANTA) return;
-        effect = window.VANTA.NET({
-          el: ref.current, mouseControls: false, touchControls: false, gyroControls: false,
-          color: dark ? 0x3b4558 : 0xc9cfd8, backgroundColor: dark ? 0x0b0f17 : 0xffffff,
-          points: 9, maxDistance: 22, spacing: 18, showDots: true, scale: 1, scaleMobile: 1,
-        });
-      })
+      .then(start)
       .catch(() => {});
-    return () => { cancelled = true; effect?.destroy(); };
+    return () => { cancelled = true; io.disconnect(); stop(); };
   }, []);
   return <div className="vanta" ref={ref} aria-hidden="true" />;
 }

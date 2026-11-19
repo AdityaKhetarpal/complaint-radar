@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
-import "@fontsource-variable/public-sans";
-import "@fontsource-variable/source-serif-4";
+import "@fontsource-variable/geist";
+import "@fontsource-variable/geist-mono";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Motion from "@/components/Motion";
@@ -21,9 +21,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const h = overview.headline;
   return (
     <html lang="en">
-      <head>
-        <script dangerouslySetInnerHTML={{ __html: "document.documentElement.classList.add('js')" }} />
-      </head>
       <body>
         <Nav />
         <main>{children}</main>

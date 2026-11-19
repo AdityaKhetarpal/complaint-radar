@@ -74,15 +74,16 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
         {months.map((m, i) => ((i % every === 0 && months.length - 1 - i >= every * 0.6) || i === months.length - 1) && (
           <text key={m} x={x(i)} y={H - 8} textAnchor="middle">{label(m)}</text>
         ))}
-        {series.map((s, si) => hidden.includes(s.name) ? null : (
-          <path key={s.name} fill="none" stroke={COLORS[si % COLORS.length]} strokeWidth={si === 0 ? 2.6 : 1.8} strokeLinejoin="round"
+        {series.map((s, si) => (
+          <path key={s.name} className="series" fill="none" stroke={COLORS[si % COLORS.length]} strokeWidth={si === 0 ? 2.4 : 1.7} strokeLinejoin="round" strokeLinecap="round"
+            opacity={hidden.includes(s.name) ? 0 : 1}
             d={s.values.map((v, i) => (v == null ? "" : `${i === 0 || s.values[i - 1] == null ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`)).join("")} />
         ))}
-        {hover != null && <line x1={x(hover)} x2={x(hover)} y1={T} y2={H - B} stroke="var(--muted)" strokeDasharray="3 3" />}
+        {hover != null && <line x1={x(hover)} x2={x(hover)} y1={T} y2={H - B} stroke="var(--line-strong)" />}
         {hover != null && shown.map((s) => {
           const v = s.values[hover];
           const si = series.indexOf(s);
-          return v == null ? null : <circle key={s.name} cx={x(hover)} cy={y(v)} r={3.5} fill={COLORS[si % COLORS.length]} />;
+          return v == null ? null : <circle key={s.name} cx={x(hover)} cy={y(v)} r={3.5} fill={COLORS[si % COLORS.length]} stroke="var(--card)" strokeWidth={2} />;
         })}
       </svg>
       <div className="tip" aria-live="polite">

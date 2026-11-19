@@ -16,10 +16,10 @@ export default function OpenGraphImage() {
   ];
   return new ImageResponse(
     (
-      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#0f172a", color: "#ffffff", padding: "72px 80px" }}>
+      <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#0b0b12", color: "#ffffff", padding: "72px 80px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <svg width="56" height="56" viewBox="0 0 32 32">
-            <path d="M16 16 L16 3.2 A12.8 12.8 0 0 1 27.1 9.6 Z" fill="#f26b2a" />
+            <path d="M16 16 L16 3.2 A12.8 12.8 0 0 1 27.1 9.6 Z" fill="#818cf8" />
             <circle cx="16" cy="16" r="12.8" fill="none" stroke="#ffffff" strokeWidth="2.2" />
             <circle cx="16" cy="16" r="7" fill="none" stroke="#ffffff" strokeWidth="1.5" strokeOpacity="0.45" />
             <circle cx="21.6" cy="9.4" r="2.2" fill="#ffffff" />
@@ -32,13 +32,13 @@ export default function OpenGraphImage() {
           <div style={{ fontSize: 62, fontWeight: 700, lineHeight: 1.08, letterSpacing: -1.5, maxWidth: 960 }}>
             What bank customers complain about, and where each complaint should go
           </div>
-          <div style={{ fontSize: 26, color: "#9aa5b5" }}>A Databricks lakehouse project on US consumer finance complaints (CFPB)</div>
+          <div style={{ fontSize: 26, color: "#9a9aab" }}>A Databricks lakehouse project on US consumer finance complaints (CFPB)</div>
         </div>
         <div style={{ display: "flex", gap: 56 }}>
           {stats.map(([v, l]) => (
             <div key={l} style={{ display: "flex", flexDirection: "column" }}>
-              <div style={{ fontSize: 44, fontWeight: 700, color: "#f26b2a" }}>{v}</div>
-              <div style={{ fontSize: 22, color: "#9aa5b5" }}>{l}</div>
+              <div style={{ fontSize: 44, fontWeight: 700, color: "#818cf8" }}>{v}</div>
+              <div style={{ fontSize: 22, color: "#9a9aab" }}>{l}</div>
             </div>
           ))}
         </div>

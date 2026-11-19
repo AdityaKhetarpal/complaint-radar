@@ -9,7 +9,7 @@ export default function IssueExplorer({ issues, products }: { issues: Issue[]; p
   const rows = issues.filter((i) => i.product === product).sort((a, b) => a.rank_in_product - b.rank_in_product);
   return (
     <div>
-      <label className="row" style={{ marginBottom: 14 }}>
+      <label className="field">
         <span>Product</span>
         <select value={product} onChange={(e) => setProduct(e.target.value)}>
           {products.map((p) => <option key={p}>{p}</option>)}

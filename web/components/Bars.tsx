@@ -1,4 +1,5 @@
 // Horizontal bars: label, bar, value. The highlighted rows use the accent colour.
+// Each fill is full width and clipped to its value (--v), so when the numbers change the bar glides to the new length.
 export default function Bars({ rows, format, highlight = [] }: {
   rows: { label: string; value: number }[]; format: (v: number) => string; highlight?: string[];
 }) {
@@ -8,7 +9,7 @@ export default function Bars({ rows, format, highlight = [] }: {
       {rows.map((r) => (
         <div key={r.label} className={`bar${highlight.includes(r.label) ? " hi" : ""}`}>
           <span className="label" title={r.label}>{r.label}</span>
-          <span className="track"><span className="fill" style={{ width: `${(100 * r.value) / max}%`, display: "block" }} /></span>
+          <span className="track"><span className="fill" style={{ "--v": `${(100 * r.value) / max}%` } as React.CSSProperties} /></span>
           <span className="val">{format(r.value)}</span>
         </div>
       ))}

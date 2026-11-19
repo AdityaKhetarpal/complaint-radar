@@ -39,7 +39,7 @@ export default function Routing() {
             <tbody>
               {model.scores.map((s) => (
                 <tr key={s.model}>
-                  <td>{modelLabel[s.model] ?? s.model}{s.model === best.model ? " (best)" : ""}</td>
+                  <td>{modelLabel[s.model] ?? s.model}{s.model === best.model && <span className="tag">best</span>}</td>
                   <td className="num">{pct(100 * s.macro_f1)}</td><td className="num">{pct(100 * s.accuracy)}</td>
                   <td className="num">{s.train_seconds.toFixed(1)} s</td>
                 </tr>
@@ -99,7 +99,7 @@ export default function Routing() {
                   const diag = a === p;
                   return (
                     <span key={p} className="c" title={`${a} → ${p}: ${cell(a, p)} complaints (${(100 * share).toFixed(1)}%)`}
-                      style={{ background: `color-mix(in srgb, ${diag ? "var(--ink)" : "var(--accent)"} ${Math.round(Math.min(1, share * (diag ? 1 : 4)) * 85)}%, var(--surface))`, color: share > (diag ? 0.5 : 0.12) ? "var(--bg)" : "var(--muted)" }}>
+                      style={{ background: `color-mix(in srgb, ${diag ? "var(--accent)" : "var(--bad)"} ${Math.round(Math.min(1, share * (diag ? 1 : 4)) * 85)}%, var(--surface))`, color: share > (diag ? 0.5 : 0.12) ? "#fff" : "var(--muted)" }}>
                       {share >= 0.005 ? Math.round(100 * share) : ""}
                     </span>
                   );

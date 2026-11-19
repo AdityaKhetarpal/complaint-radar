@@ -50,7 +50,7 @@ export default function Themes() {
               <div className="meta">
                 <span><b>{n(t.complaints)}</b> complaints ({pct(t.share_pct)})</span>
                 <span>Mostly: {t.main_products}</span>
-                <span>{t.copy_pct >= 40 ? <b style={{ color: "var(--accent)" }}>Copy-paste campaign: {pct(t.copy_pct, 0)} are repeated letters</b> : <>{pct(t.copy_pct, 0)} repeated letters</>}</span>
+                {t.copy_pct >= 40 ? <span className="hot">Copy-paste campaign: {pct(t.copy_pct, 0)} repeated letters</span> : <span>{pct(t.copy_pct, 0)} repeated letters</span>}
               </div>
               <p className="words"><b>Key words:</b> {t.top_words}</p>
               <details>

@@ -29,21 +29,21 @@ export default function Home() {
             mid-August 2026, turned into trends, themes nobody had a label for, and a model that reads a complaint and routes it to the
             right team.
           </p>
-          <div className="row" style={{ marginTop: 22 }}>
+          <div className="row" style={{ marginTop: 26 }}>
             <Link className="btn" href="/routing">See the routing model</Link>
             <Link className="btn ghost" href="/method">How it&apos;s built on Databricks</Link>
           </div>
           <div className="stats">
-            <div className="stat"><b>{compact(h.complaints)}</b><span>complaints, {monthName(h.first_month)} to {monthName(h.last_month)}</span></div>
-            <div className="stat"><b>{pct(100 * best.macro_f1, 1)}</b><span>macro F1 routing complaints to 1 of {new Set(model.confusion.map((c) => c.actual)).size} products ({modelLabel[best.model] ?? best.model})</span></div>
-            <div className="stat"><b>{named.length || topics.topics.length}</b><span>themes found by topic modeling in {n(h.sample)} complaint letters</span></div>
-            <div className="stat"><b>{h.companies_scored}</b><span>companies with 500+ complaints compared on how they respond</span></div>
+            <div className="stat"><small>Complaints</small><b>{compact(h.complaints)}</b><span>complaints, {monthName(h.first_month)} to {monthName(h.last_month)}</span></div>
+            <div className="stat"><small>Routing accuracy</small><b>{pct(100 * best.macro_f1, 1)}</b><span>macro F1 routing complaints to 1 of {new Set(model.confusion.map((c) => c.actual)).size} products ({modelLabel[best.model] ?? best.model})</span></div>
+            <div className="stat"><small>Themes</small><b>{named.length || topics.topics.length}</b><span>themes found by topic modeling in {n(h.sample)} complaint letters</span></div>
+            <div className="stat"><small>Companies compared</small><b>{h.companies_scored}</b><span>companies with 500+ complaints compared on how they respond</span></div>
           </div>
         </div>
       </section>
 
       <div className="wrap">
-        <section className="section" style={{ paddingTop: 40 }} data-reveal>
+        <section className="section" style={{ paddingTop: 36 }} data-reveal>
           <h2>Complaints per month</h2>
           <p className="answer-line">
             Monthly complaints went from <b>{n(first)}</b> in {monthName(months[0])} to <b>{n(last)}</b> in {monthName(months[months.length - 1])}
@@ -53,7 +53,7 @@ export default function Home() {
             <LineChart months={months} series={series} kind="compact" yLabel="Complaints" />
             <p className="source">All complaints in the archive, with or without a written narrative. August 2026 is left out because the archive stops on 14 August. Source: CFPB.</p>
           </div>
-          <div className="card" style={{ marginTop: 20 }}>
+          <div className="card" style={{ marginTop: 16 }}>
             <h3>The other products, on their own scale</h3>
             <p className="sub">{biggest} is {pct(products[0].share_pct)} of all complaints, which flattens every other product in the chart above.</p>
             <LineChart months={months} series={others} kind="compact" yLabel="Complaints" height={260} />
@@ -91,7 +91,7 @@ export default function Home() {
                     <tr key={g.product + g.issue}>
                       <td>{g.product}</td><td>{g.issue}</td>
                       <td className="num">{n(g.year_ago)}</td><td className="num">{n(g.recent)}</td>
-                      <td className="num" style={{ color: g.change_pct >= 0 ? "var(--accent)" : "var(--good)", fontWeight: 600 }}>{g.change_pct >= 0 ? "+" : ""}{pct(g.change_pct, 0)}</td>
+                      <td className="num" style={{ color: g.change_pct >= 0 ? "var(--bad)" : "var(--good)", fontWeight: 600 }}>{g.change_pct >= 0 ? "+" : ""}{pct(g.change_pct, 0)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -102,11 +102,11 @@ export default function Home() {
         )}
 
         <section className="section" data-reveal>
-          <h2>What&apos;s inside</h2>
+          <h2 className="section-head">What&apos;s inside</h2>
           <div className="grid g3">
-            <Link href="/themes" className="card" style={{ textDecoration: "none" }}><h3>Themes</h3><p className="sub">Topic modeling finds what complaints are really about, then an LLM names and summarises each theme.</p></Link>
-            <Link href="/routing" className="card" style={{ textDecoration: "none" }}><h3>Routing model</h3><p className="sub">Three text classifiers tracked in MLflow, compared with a baseline and with an LLM that had no training.</p></Link>
-            <Link href="/assistant" className="card" style={{ textDecoration: "none" }}><h3>Complaints assistant</h3><p className="sub">Ask a question, get an answer built only from real complaints, with every citation checked.</p></Link>
+            <Link href="/themes" className="card card-link"><h3>Themes</h3><p className="sub">Topic modeling finds what complaints are really about, then an LLM names and summarises each theme.</p><span className="go">Explore themes →</span></Link>
+            <Link href="/routing" className="card card-link"><h3>Routing model</h3><p className="sub">Three text classifiers tracked in MLflow, compared with a baseline and with an LLM that had no training.</p><span className="go">See the model →</span></Link>
+            <Link href="/assistant" className="card card-link"><h3>Complaints assistant</h3><p className="sub">Ask a question, get an answer built only from real complaints, with every citation checked.</p><span className="go">Read the answers →</span></Link>
           </div>
         </section>
       </div>
