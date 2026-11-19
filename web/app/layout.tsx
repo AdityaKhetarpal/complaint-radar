@@ -8,6 +8,7 @@ import Nav from "@/components/Nav";
 import Motion from "@/components/Motion";
 import NextPage from "@/components/NextPage";
 import { overview, dateName, compact } from "@/lib/data";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const SITE = "https://cfpb-complaint-radar.vercel.app";
 
@@ -48,6 +49,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           </div>
         </footer>
         <Motion />
+        <SpeedInsights />
       </body>
     </html>
   );
