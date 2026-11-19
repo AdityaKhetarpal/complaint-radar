@@ -6,6 +6,7 @@ import "@fontsource-variable/jetbrains-mono";
 import "./globals.css";
 import Nav from "@/components/Nav";
 import Motion from "@/components/Motion";
+import NextPage from "@/components/NextPage";
 import { overview, dateName, compact } from "@/lib/data";
 
 const SITE = "https://cfpb-complaint-radar.vercel.app";
@@ -24,8 +25,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <body>
+        <a className="skip" href="#main">Skip to content</a>
         <Nav />
-        <main>{children}</main>
+        <main id="main" tabIndex={-1}>{children}</main>
+        <NextPage />
         <footer className="night">
           <div className="wrap">
             <p className="close">Every number on this site comes from <em>seven notebooks</em> run over {compact(h.complaints)} public complaints.</p>

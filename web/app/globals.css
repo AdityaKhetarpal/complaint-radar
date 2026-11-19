@@ -7,7 +7,7 @@
   --surface: #ebe7dd;
   --ink: #171714;
   --muted: #5d5a51;
-  --faint: #7d796d;
+  --faint: #6b675c;
   --line: #dcd7ca;
   --line-soft: #e8e4d9;
   /* night rooms */
@@ -53,7 +53,7 @@
 }
 /* a night room re-points the paper tokens, so every component inside it adapts on its own */
 .night {
-  --card: var(--night-2); --surface: var(--night-3); --ink: var(--n-ink); --muted: var(--n-muted); --faint: #6f7a72;
+  --card: var(--night-2); --surface: var(--night-3); --ink: var(--n-ink); --muted: var(--n-muted); --faint: #808b83;
   --line: var(--n-line); --line-soft: var(--n-line); --signal-ink: var(--signal); --signal-soft: #1f2a12; --bar: #3b4540; --bad: #ff7b6e; --good: #6fd08a;
   --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #d55181; --s6: #0ca30c;
   background: var(--night); color: var(--ink);
@@ -177,7 +177,11 @@ code, pre { font-family: var(--mono); font-size: 0.85em; }
 
 /* inner pages: the head is a night band that runs edge to edge */
 .head { position: relative; isolation: isolate; color: var(--n-ink); padding: 72px 0 60px; margin-bottom: 64px;
-  --ink: var(--n-ink); --muted: var(--n-muted); --signal-ink: var(--signal); }
+  --ink: var(--n-ink); --muted: var(--n-muted); --faint: #808b83; --line: var(--n-line); --signal-ink: var(--signal); }
+.head .readout { margin-top: 44px; }
+.readout.r3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.readout.r2 { grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 760px; }
+@media (max-width: 920px) { .readout.r3 { grid-template-columns: 1fr 1fr; } }
 .head::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: 0; left: calc(50% - 50vw); right: calc(50% - 50vw); background: var(--night); border-bottom: 1px solid var(--n-line); }
 .head h1 { font-size: clamp(40px, 5.4vw, 72px); max-width: 14em; }
 .head p { color: var(--n-muted); max-width: 44em; font-size: 17.5px; margin: 0; }
@@ -324,6 +328,14 @@ select { font: inherit; font-size: 14px; padding: 8px 32px 8px 14px; border-radi
 .field { display: inline-flex; align-items: center; gap: 12px; color: var(--muted); font: 500 11.5px var(--mono); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 18px; }
 .field select { text-transform: none; letter-spacing: 0; font-family: var(--sans); }
 
+/* bigger targets on touch screens */
+@media (pointer: coarse) {
+  .legend { gap: 2px 14px; }
+  .legend button { min-height: 40px; padding: 0 4px; }
+  th button { padding: 10px 0; margin: -10px 0; }
+  details summary { min-height: 40px; }
+}
+
 /* hover only where there is a real pointer: touch screens fire a false hover on tap */
 @media (hover: hover) and (pointer: fine) {
   .nav a { transition: color var(--quick) ease; }
@@ -336,10 +348,29 @@ select { font: inherit; font-size: 14px; padding: 8px 32px 8px 14px; border-radi
   .index a:hover .t { color: var(--signal-ink); }
   .index a .go { transition: transform var(--state) var(--ease-out); }
   .index a:hover .go { transform: translateX(4px); }
+  .next a .go { transition: transform var(--state) var(--ease-out); }
+  .next a:hover .t { color: var(--signal-ink); }
+  .next a:hover .go { transform: translateX(6px); }
   .legend button:hover { color: var(--ink); }
   th button:hover { color: var(--ink); }
   select:hover { border-color: var(--muted); }
 }
+
+/* ---------- next page (end of every inner page) ---------- */
+.next { border-top: 1px solid var(--line); }
+.next a { display: grid; gap: 6px; padding: 56px 0 64px; text-decoration: none; }
+.next .label { margin-bottom: 8px; }
+.next .t { font: 400 clamp(40px, 5.4vw, 72px)/1 var(--serif); letter-spacing: -0.015em; }
+.next .t .go { font: 400 0.6em var(--mono); color: var(--signal-ink); display: inline-block; vertical-align: 0.12em; }
+.next .d { color: var(--muted); font-size: 17px; max-width: 40em; }
+
+/* ---------- skip link, colour keys, empty chart ---------- */
+.skip { position: absolute; left: 12px; top: -48px; z-index: 50; padding: 10px 14px; border-radius: 4px; background: var(--signal); color: var(--on-signal); font-weight: 600; text-decoration: none; }
+.skip:focus { top: 10px; }
+main:focus { outline: none; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 0 0 14px; color: var(--muted); font: 12px/1.5 var(--mono); }
+.key i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; margin-right: 7px; vertical-align: -2px; }
+.chart .empty { fill: var(--muted); font: 13px var(--sans); }
 
 /* ---------- closing ---------- */
 footer.night { padding: 96px 0 48px; border-top: 1px solid var(--n-line); }

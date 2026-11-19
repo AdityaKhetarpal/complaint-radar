@@ -13,6 +13,11 @@ export default function Method() {
         <div className="label">Databricks · Unity Catalog · MLflow · Genie · AI/BI</div>
         <h1>How it&apos;s built</h1>
         <p>Seven notebooks run the whole project. The same notebooks run in a Databricks workspace and in GitHub Actions, which is how this website gets its numbers.</p>
+        <div className="readout r3">
+          <div><b className="hl">7</b><span>notebooks run the whole project, from download to website</span></div>
+          <div><b>~15 min</b><span>to run it yourself on Databricks Free Edition</span></div>
+          <div><b>0</b><span>API keys or databases needed to host this website</span></div>
+        </div>
       </div>
 
       <section className="section" data-reveal>
@@ -54,7 +59,7 @@ export default function Method() {
 
       <section className="section" data-reveal>
         <h2>Run it in your own Databricks workspace</h2>
-        <p className="sub">Works on the free <a href="https://docs.databricks.com/aws/en/getting-started/free-edition">Databricks Free Edition</a>. About 15 minutes.</p>
+        <p className="sub">Works on <a href="https://docs.databricks.com/aws/en/getting-started/free-edition">Databricks Free Edition</a>. About 15 minutes.</p>
         <ol className="steps" style={{ marginTop: 16 }}>
           <li><span><b>Add the repo.</b> Workspace → Create → Git folder → paste <code>{REPO}</code>. The data files come with it, because Free Edition can&apos;t download from most websites.</span></li>
           <li><span><b>Run notebooks 02 to 07</b> in order, on serverless compute. Skip 01: its output is already in <code>data/</code>.</span></li>

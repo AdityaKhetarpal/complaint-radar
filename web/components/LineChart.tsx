@@ -79,6 +79,7 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
             opacity={hidden.includes(s.name) ? 0 : 1}
             d={s.values.map((v, i) => (v == null ? "" : `${i === 0 || s.values[i - 1] == null ? "M" : "L"}${x(i).toFixed(1)},${y(v).toFixed(1)}`)).join("")} />
         ))}
+        {shown.length === 0 && <text className="empty" x={(L + W - R) / 2} y={(T + H - B) / 2} textAnchor="middle">All lines hidden</text>}
         {hover != null && <line x1={x(hover)} x2={x(hover)} y1={T} y2={H - B} stroke="var(--faint)" strokeDasharray="2 3" />}
         {hover != null && shown.map((s) => {
           const v = s.values[hover];
@@ -89,7 +90,7 @@ export default function LineChart({ months, series, kind, yLabel, height = 300 }
       <div className="tip" aria-live="polite">
         {hover != null ? (
           <><b>{label(months[hover])}</b>{shown.map((s) => s.values[hover] == null ? null : <span key={s.name}> · {s.name} {format(s.values[hover] as number)}</span>)}</>
-        ) : "Hover or tap the chart to read the values. Click a name above to hide or show its line."}
+        ) : shown.length ? "Hover or tap the chart to read the values. Select a name above to hide or show its line." : "All lines are hidden. Select a name above to show one again."}
       </div>
     </div>
   );

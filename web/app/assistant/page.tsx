@@ -51,12 +51,14 @@ export default function Assistant() {
           For each question, the assistant first finds the {k} complaints most similar to it (TF-IDF retrieval), then a language model answers using only
           those complaints and cites them by ID. Every citation is then checked against the {k} it was given.
         </p>
+        <div className="readout r3">
+          <div><b className="hl">{clean} of {answers.length}</b><span>answers that cite only complaints they were given</span></div>
+          <div><b>{k}</b><span>complaints retrieved for each question</span></div>
+          <div><b>{citing} of {answers.length}</b><span>answers that cite at least one complaint</span></div>
+        </div>
       </div>
 
       <section className="section" data-reveal>
-        <p className="answer-line">
-          <b>{clean} of {answers.length}</b> answers used only real citations, and <b>{citing} of {answers.length}</b> cited at least one complaint.
-        </p>
         <div className="callout">
           These answers were generated once by the pipeline and saved, so this page needs no API key and costs nothing to host. To ask your own
           questions, run notebook 06 in Databricks, where it uses a Foundation Model endpoint.

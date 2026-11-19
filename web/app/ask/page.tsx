@@ -7,6 +7,7 @@ const fmt = (v: string | number | null, col: string) =>
   v == null ? "–" : col === "year" ? String(v) : typeof v === "number" ? (Number.isInteger(v) || Math.abs(v) >= 1000 ? Math.round(v).toLocaleString("en-US") : v.toFixed(1)) : v;
 
 export default function Ask() {
+  const tables = new Set(ask.examples.flatMap((e) => e.sql.match(/gold_\w+/g) ?? [])).size;
   return (
     <div className="wrap">
       <div className="head">
@@ -17,6 +18,10 @@ export default function Ask() {
           space is given instructions and a set of <b>trusted queries</b>: questions paired with SQL a person has checked. These are this project&apos;s trusted
           queries, run on the same gold tables, with their real results.
         </p>
+        <div className="readout r2">
+          <div><b className="hl">{ask.examples.length}</b><span>trusted questions, each paired with SQL a person checked</span></div>
+          <div><b>{tables}</b><span>gold tables they run on, the same ones Genie reads</span></div>
+        </div>
       </div>
       <div className="callout" style={{ marginBottom: 32 }}>
         Genie itself runs inside a Databricks workspace, so it can&apos;t be embedded on a public website. The <a href="/method">How it&apos;s built</a> page shows how to set

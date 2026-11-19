@@ -10,6 +10,9 @@ export default function Companies() {
   const top: Record<string, string> = {};
   for (const r of companies.products) if (!top[r.company]) top[r.company] = r.product; // rows come sorted by complaints
   const h = overview.headline;
+  // shares across all complaints at these companies, so a big company counts for more than a small one
+  const all = rows.reduce((s, r) => s + r.complaints, 0);
+  const avg = (k: "timely_pct" | "relief_pct" | "explanation_pct") => rows.reduce((s, r) => s + r[k] * r.complaints, 0) / all;
   const products = [...new Set(companies.responses.map((r) => r.product))];
   const reliefBy = products.map((p) => ({
     label: p,
@@ -26,6 +29,12 @@ export default function Companies() {
           them. A company with more customers gets more complaints, so the counts are not a ranking of who is worst, and nothing here says any company
           broke a rule.
         </p>
+        <div className="readout">
+          <div><b className="hl">{rows.length}</b><span>companies compared here, of {n(h.companies_scored)} with 500+ complaints</span></div>
+          <div><b>{pct(avg("timely_pct"))}</b><span>of their complaints answered within 15 days</span></div>
+          <div><b>{pct(avg("relief_pct"))}</b><span>closed with relief for the customer</span></div>
+          <div><b>{pct(avg("explanation_pct"))}</b><span>closed with an explanation only</span></div>
+        </div>
       </div>
 
       <section className="section" data-reveal>

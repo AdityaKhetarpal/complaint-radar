@@ -26,6 +26,12 @@ export default function Routing() {
           Every complaint has to reach the team that handles that product: cards, mortgages, debt collection and so on. Here a model reads only the
           customer&apos;s words and predicts the product. The customer also picked a product on the form, so every prediction can be checked.
         </p>
+        <div className="readout">
+          <div><b className="hl">{pct(100 * best.macro_f1)}</b><span>macro F1 for the best model, {modelLabel[best.model] ?? best.model}</span></div>
+          {at80 && <div><b>{pct(at80.auto_routed_pct)}</b><span>of complaints routed with no person, at 80% confidence</span></div>}
+          {at80 && <div><b>{pct(at80.accuracy_of_auto_routed_pct)}</b><span>of those sent to the right team</span></div>}
+          {llm.length === 2 && <div><b>{pct(100 * llm[1].macro_f1)}</b><span>macro F1 for an LLM with no training, on the same test</span></div>}
+        </div>
       </div>
 
       <section className="section" data-reveal>
@@ -44,7 +50,7 @@ export default function Routing() {
                   <td className="num">{s.train_seconds.toFixed(1)} s</td>
                 </tr>
               ))}
-              <tr><td>Baseline: always guess the most common product</td><td className="num">{pct(100 * best.baseline_macro_f1)}</td><td className="num">–</td><td className="num">–</td></tr>
+              <tr><td>Baseline: most common product</td><td className="num">{pct(100 * best.baseline_macro_f1)}</td><td className="num">–</td><td className="num">–</td></tr>
             </tbody>
           </table>
         </div>
@@ -84,9 +90,14 @@ export default function Routing() {
       <section className="section" data-reveal>
         <h2>Which products get mixed up</h2>
         {mixups[0] && mixups[0].share > 0 && (
-          <p className="sub">The biggest mix-up: {pct(100 * mixups[0].share)} of {mixups[0].a} complaints were routed to {mixups[0].p}. Often both are true, for example a debt collector reporting a debt to the credit bureaus.</p>
+          <p className="sub">The biggest mix-up: {pct(100 * mixups[0].share)} of {mixups[0].a} complaints were routed to {mixups[0].p}. Often the complaint really is about both products.</p>
         )}
         <div className="card scroll-x">
+          <div className="key">
+            <span><i style={{ background: "var(--heat-ok)" }} />Routed to the right product</span>
+            <span><i style={{ background: "var(--heat-bad)" }} />Mixed up with another product</span>
+            <span>Numbers are % of each row</span>
+          </div>
           <p className="swipe">Swipe sideways to see every product →</p>
           <div className="heat" style={{ gridTemplateColumns: `minmax(110px, 150px) repeat(${labels.length}, minmax(34px, 1fr))`, minWidth: 560 }}>
             <span />
@@ -147,7 +158,7 @@ export default function Routing() {
       {model.mistakes.length > 0 && (
         <section className="section" data-reveal>
           <h2>Where it goes wrong</h2>
-          <p className="sub">{model.mistakes.length} random wrong predictions. Many are complaints that really are about two products.</p>
+          <p className="sub">{model.mistakes.length} wrong predictions, picked at random. Many are complaints that really are about two products.</p>
           <div className="grid g2">
             {model.mistakes.map((m) => (
               <blockquote key={m.complaint_id}>

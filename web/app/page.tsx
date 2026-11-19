@@ -4,18 +4,9 @@ import Radar from "@/components/Radar";
 import LineChart from "@/components/LineChart";
 import Bars from "@/components/Bars";
 import IssueExplorer from "@/components/IssueExplorer";
-import { LINKS } from "@/lib/links";
+import { LINKS, QUESTION } from "@/lib/links";
 import { overview, model, topics, compact, n, pct, monthName, modelLabel } from "@/lib/data";
 
-// one line for each page in the closing index
-const ABOUT: Record<string, string> = {
-  "/themes": "Topic modeling finds what the letters are really about; an LLM names and summarises each theme.",
-  "/routing": "Three text classifiers tracked in MLflow, against a baseline and an LLM with no training.",
-  "/companies": "How the biggest companies close their complaints: on time, with relief, or with an explanation only.",
-  "/assistant": "Questions answered only from real complaints, with every citation checked.",
-  "/ask": "Plain-English questions and the trusted SQL behind them, as used in the Databricks Genie space.",
-  "/method": "The lakehouse: Unity Catalog tables, MLflow, Genie, AI/BI and the GitHub Actions pipeline.",
-};
 
 export default function Home() {
   const { headline: h, monthly, products, issues, growth } = overview;
@@ -41,12 +32,12 @@ export default function Home() {
               <div className="label rise d1">A Databricks lakehouse project · CFPB complaints</div>
               <h1 className="rise">What bank customers complain about, and <em>where each complaint should go</em></h1>
               <p className="lead rise d2">
-                {compact(h.complaints)} complaints sent to the US Consumer Financial Protection Bureau between {monthName(h.first_month)} and
-                mid-August 2026, turned into trends, themes nobody had a label for, and a model that reads a complaint and routes it to the right team.
+                {compact(h.complaints)} complaints sent to the US Consumer Financial Protection Bureau from {monthName(h.first_month)} to mid-August 2026,
+                turned into trends, hidden themes and a model that routes each complaint to the right team.
               </p>
               <div className="row rise d3">
                 <Link className="btn" href="/routing">See the routing model <span className="arr">→</span></Link>
-                <Link className="btn ghost" href="/method">How it&apos;s built</Link>
+                <Link className="btn ghost" href="/method">See how it&apos;s built</Link>
               </div>
             </div>
             <Radar products={products} />
@@ -67,7 +58,7 @@ export default function Home() {
               <div className="label">01 · The trend</div>
               <h2>Monthly complaints are {change >= 0 ? "up" : "down"} <em>{pct(Math.abs(change), 0)}</em> in {months.length - 1} months</h2>
             </div>
-            <p>From <b>{n(first)}</b> in {monthName(months[0])} to <b>{n(last)}</b> in {monthName(months[months.length - 1])}. {biggest} is {pct(products[0].share_pct)} of everything, so the second chart shows the rest on their own scale.</p>
+            <p>From <b>{n(first)}</b> in {monthName(months[0])} to <b>{n(last)}</b> in {monthName(months[months.length - 1])}. {biggest} is {pct(products[0].share_pct)} of everything, so the second chart shows the next five products on their own scale.</p>
           </div>
           <div className="card">
             <LineChart months={months} series={series} kind="compact" yLabel="Complaints" />
@@ -140,13 +131,13 @@ export default function Home() {
       <section className="room paper">
         <div className="wrap" data-reveal>
           <div className="label">04 · Go deeper</div>
-          <h2 style={{ marginBottom: 32 }}>Six more rooms</h2>
+          <h2 style={{ marginBottom: 32 }}>Six questions, <em>one page each</em></h2>
           <div className="index">
             {LINKS.slice(1).map(([href, title], i) => (
               <Link key={href} href={href}>
                 <span className="n">{String(i + 2).padStart(2, "0")}</span>
                 <span className="t">{title}</span>
-                <span className="d">{ABOUT[href]}</span>
+                <span className="d">{QUESTION[href]}</span>
                 <span className="go" aria-hidden="true">→</span>
               </Link>
             ))}

@@ -25,6 +25,11 @@ export default function Themes() {
           letters into {list.length} themes without being told what to look for. A language model ({h.llm}) then read each theme&apos;s most typical
           complaints and gave it a name and a summary.
         </p>
+        <div className="readout r3">
+          <div><b className="hl">{list.length}</b><span>themes, found without being told what to look for</span></div>
+          <div><b>{n(h.sample)}</b><span>complaint letters in the balanced sample</span></div>
+          <div><b>{campaigns}</b><span>themes that are mostly copy-paste letters</span></div>
+        </div>
       </div>
 
       <section className="section" data-reveal>
